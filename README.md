@@ -68,7 +68,7 @@ AI_POWERED_RESUME_RANKER/
 
 ---
 
-## 🚀 Installation & Getting Started
+## Installation & Getting Started
 
 ### 1. Prerequisites
 Ensure you have Python (version 3.8 to 3.12 recommended) installed on your machine.
@@ -116,7 +116,7 @@ Open your browser and navigate to `http://127.0.0.1:5000/`.
 
 ---
 
-## 🧪 Running Unit Tests
+## Running Unit Tests
 
 Verify code quality and functional behavior by running the unittest suite:
 ```bash
@@ -125,7 +125,7 @@ python -m unittest discover -s tests
 
 ---
 
-## 🛠️ Tech Stack & Libraries
+## Tech Stack & Libraries
 
 *   **Framework:** Flask
 *   **Database:** SQLite (built-in connector)
