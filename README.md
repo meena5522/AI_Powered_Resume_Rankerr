@@ -4,7 +4,7 @@ A modular, production-ready recruitment and HR intelligence platform built using
 
 ---
 
-## 🌟 Key Features
+##  Key Features
 
 *   **Recruiter Authentication:** Session-based signup, login, password hashing, and recruiter profile settings (username/email/password updates).
 *   **Job Description Management:** Define roles, paste detailed postings, and automatically extract key skill requirements using NLP.
@@ -23,7 +23,7 @@ A modular, production-ready recruitment and HR intelligence platform built using
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 AI_POWERED_RESUME_RANKER/
