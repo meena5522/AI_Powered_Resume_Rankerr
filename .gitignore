@@ -1,0 +1,25 @@
+# Python virtual environments
+venv/
+.venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# SQLite Database
+*.db
+*.db-journal
+
+# Project folders with user/generated data
+uploads/*
+!uploads/.gitkeep
+reports/*
+!reports/.gitkeep
+static/charts/*
+!static/charts/.gitkeep
+
+# IDE configs
+.vscode/
+.idea/
+.gemini/

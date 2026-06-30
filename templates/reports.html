@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Report History - AI Resume Ranker{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <h2 class="fw-bold"><i class="fa-solid fa-file-invoice me-2 text-primary"></i>Report History</h2>
+        <p class="text-muted">Access and download previously compiled CSV and PDF recruitment reports.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="glass-card p-4">
+            <h5 class="fw-bold mb-4"><i class="fa-solid fa-clock-rotate-left me-2 text-indigo"></i>Exported Reports Log</h5>
+            
+            {% if reports %}
+            <div class="table-responsive">
+                <table class="table align-middle table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Job Title</th>
+                            <th>Format</th>
+                            <th>Filename</th>
+                            <th>Date Generated</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for report in reports %}
+                        <tr>
+                            <td><strong class="text-indigo">{{ report.job_title }}</strong></td>
+                            <td>
+                                {% if report.report_type == 'PDF' %}
+                                    <span class="badge bg-danger-subtle text-danger"><i class="fa-regular fa-file-pdf me-1"></i>PDF</span>
+                                {% else %}
+                                    <span class="badge bg-success-subtle text-success"><i class="fa-solid fa-file-csv me-1"></i>CSV</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted small">{{ report.filename }}</td>
+                            <td class="small">{{ report.created_at }}</td>
+                            <td class="text-end">
+                                <a href="{{ url_for('download_report_file', report_id=report.id) }}" class="btn btn-primary-gradient btn-sm rounded-3">
+                                    <i class="fa-solid fa-download me-1"></i> Download
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fa-solid fa-print fa-3x text-muted mb-3"></i>
+                <h6 class="fw-bold">No Generated Reports</h6>
+                <p class="text-muted">Run rankings and click on export buttons to create reports.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

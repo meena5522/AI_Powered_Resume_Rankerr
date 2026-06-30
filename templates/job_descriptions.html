@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Job Descriptions - AI Resume Ranker{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <h2 class="fw-bold"><i class="fa-solid fa-file-contract me-2 text-primary"></i>Job Descriptions</h2>
+        <p class="text-muted">Register positions and extract target skill requirements for resume comparisons.</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Creation Panel -->
+    <div class="col-md-5 mb-4">
+        <div class="glass-card p-4">
+            <h5 class="fw-bold mb-4"><i class="fa-solid fa-square-plus me-2 text-indigo"></i>Define New Position</h5>
+            
+            <form action="{{ url_for('job_descriptions') }}" method="POST" class="show-loader-on-submit">
+                <div class="mb-3">
+                    <label for="title" class="form-label fw-semibold">Job Title</label>
+                    <input type="text" class="form-control" id="title" name="title" placeholder="e.g. Senior Backend Engineer" required>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="description" class="form-label fw-semibold">Job Description details</label>
+                    <textarea class="form-control" id="description" name="description" rows="10" placeholder="Paste the full job posting details here. The system will scan this text to extract target skills and create a TF-IDF baseline." required></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary-gradient w-100 py-2 rounded-3"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Analyze & Save JD</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Listing Panel -->
+    <div class="col-md-7 mb-4">
+        <div class="glass-card p-4 h-100">
+            <h5 class="fw-bold mb-4"><i class="fa-solid fa-clipboard-list me-2 text-indigo"></i>Available Job Descriptions</h5>
+            
+            {% if jds %}
+            <div class="table-responsive">
+                <table class="table align-middle table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Title</th>
+                            <th>Extracted Target Skills</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for jd in jds %}
+                        <tr>
+                            <td>
+                                <strong class="text-indigo">{{ jd.title }}</strong>
+                                <div class="small text-muted">Created: {{ jd.created_at }}</div>
+                            </td>
+                            <td>
+                                {% if jd.skills %}
+                                    {% for skill in jd.skills.split(',') %}
+                                        <span class="skill-badge skill-badge-match">{{ skill }}</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="text-muted small">No target skills extracted</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <form action="{{ url_for('delete_job_description', jd_id=jd.id) }}" method="POST" class="d-inline" onsubmit="return confirmDelete(event, '{{ jd.title }}')">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm border-0"><i class="fa-regular fa-trash-can"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5 d-flex flex-column align-items-center justify-content-center h-75">
+                <i class="fa-solid fa-folder-open fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No Job Descriptions registered yet. Define a position on the left to start ranking candidates!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

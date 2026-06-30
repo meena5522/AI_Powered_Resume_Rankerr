@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - AI Resume Ranker{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="fw-bold"><i class="fa-solid fa-gauge-high me-2 text-primary"></i>HR Dashboard</h2>
+        <p class="text-muted">Welcome back, <b>{{ session.get('username') }}</b>. Here is your matching pipeline health.</p>
+    </div>
+</div>
+
+<!-- Stats Card Row -->
+<div class="row mb-5">
+    <div class="col-md-4 col-lg-2.4 col-sm-6 mb-4" style="width: 20%;">
+        <div class="card dashboard-stat-card bg-gradient shadow-sm" style="background: linear-gradient(135deg, #6366f1, #4f46e5);">
+            <div class="card-body">
+                <h6 class="text-white-50 text-uppercase fw-semibold mb-1 small">Total Resumes</h6>
+                <h3 class="fw-bold text-white mb-0">{{ stats.total_resumes }}</h3>
+                <i class="fa-solid fa-file-pdf stat-icon"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 col-lg-2.4 col-sm-6 mb-4" style="width: 20%;">
+        <div class="card dashboard-stat-card bg-gradient shadow-sm" style="background: linear-gradient(135deg, #0ea5e9, #0284c7);">
+            <div class="card-body">
+                <h6 class="text-white-50 text-uppercase fw-semibold mb-1 small">Job Descriptions</h6>
+                <h3 class="fw-bold text-white mb-0">{{ stats.total_jds }}</h3>
+                <i class="fa-solid fa-file-contract stat-icon"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 col-lg-2.4 col-sm-6 mb-4" style="width: 20%;">
+        <div class="card dashboard-stat-card bg-gradient shadow-sm" style="background: linear-gradient(135deg, #10b981, #059669);">
+            <div class="card-body">
+                <h6 class="text-white-50 text-uppercase fw-semibold mb-1 small">Rankings Run</h6>
+                <h3 class="fw-bold text-white mb-0">{{ stats.total_rankings }}</h3>
+                <i class="fa-solid fa-ranking-star stat-icon"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 col-lg-2.4 col-sm-6 mb-4" style="width: 20%;">
+        <div class="card dashboard-stat-card bg-gradient shadow-sm" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+            <div class="card-body">
+                <h6 class="text-white-50 text-uppercase fw-semibold mb-1 small">Highest Score</h6>
+                <h3 class="fw-bold text-white mb-0">{{ "%.1f"|format(stats.highest_score) }}%</h3>
+                <i class="fa-solid fa-star-half-stroke stat-icon"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 col-lg-2.4 col-sm-6 mb-4" style="width: 20%;">
+        <div class="card dashboard-stat-card bg-gradient shadow-sm" style="background: linear-gradient(135deg, #ec4899, #db2777);">
+            <div class="card-body">
+                <h6 class="text-white-50 text-uppercase fw-semibold mb-1 small">Average Score</h6>
+                <h3 class="fw-bold text-white mb-0">{{ "%.1f"|format(stats.average_score) }}%</h3>
+                <i class="fa-solid fa-calculator stat-icon"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Section -->
+<div class="row">
+    <!-- Recent Resumes and Actions -->
+    <div class="col-lg-8 mb-4">
+        <!-- Recently Uploaded -->
+        <div class="glass-card p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0"><i class="fa-regular fa-folder-open me-2 text-indigo"></i>Recent Uploads</h5>
+                <a href="{{ url_for('resumes') }}" class="btn btn-sm btn-outline-primary rounded-3">Manage Resumes</a>
+            </div>
+            
+            {% if stats.recent_resumes %}
+            <div class="table-responsive">
+                <table class="table align-middle table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Candidate Name</th>
+                            <th>File Name</th>
+                            <th>Uploaded On</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for resume in stats.recent_resumes %}
+                        <tr>
+                            <td><strong class="text-indigo">{{ resume.candidate_name }}</strong></td>
+                            <td class="text-muted"><i class="fa-regular fa-file-pdf text-danger me-1"></i>{{ resume.filename }}</td>
+                            <td class="small">{{ resume.created_at }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="fa-solid fa-box-open fa-2x text-muted mb-3"></i>
+                <p class="text-muted mb-0">No resumes uploaded yet. Get started by uploading PDF resumes!</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Recent Similarity Rankings -->
+        <div class="glass-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0"><i class="fa-solid fa-list-ol me-2 text-indigo"></i>Recent Match Evaluations</h5>
+                <a href="{{ url_for('rankings') }}" class="btn btn-sm btn-outline-primary rounded-3">Run Rankings</a>
+            </div>
+            
+            {% if recent_rankings %}
+            <div class="table-responsive">
+                <table class="table align-middle table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Candidate Name</th>
+                            <th>Target Role</th>
+                            <th>Similarity Score</th>
+                            <th>Decision Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rank in recent_rankings %}
+                        <tr>
+                            <td><strong class="text-indigo">{{ rank.candidate_name }}</strong></td>
+                            <td class="text-muted">{{ rank.job_title }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="progress w-75 me-2">
+                                        <div class="progress-bar bg-primary" role="progressbar" style="width: {{ rank.score }}%"></div>
+                                    </div>
+                                    <span class="small fw-semibold">{{ "%.1f"|format(rank.score) }}%</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge badge-status 
+                                    {% if rank.recommendation == 'Highly Recommended' %}status-highly-recommended
+                                    {% elif rank.recommendation == 'Recommended' %}status-recommended
+                                    {% elif rank.recommendation == 'Consider' %}status-consider
+                                    {% else %}status-not-recommended{% endif %}">
+                                    {{ rank.recommendation }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="fa-solid fa-diagram-project fa-2x text-muted mb-3"></i>
+                <p class="text-muted mb-0">No similarity scores computed. Go to the Similarity Rankings page to compute matches!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Sidebar Charts -->
+    <div class="col-lg-4 mb-4">
+        <div class="glass-card p-4 h-100">
+            <h5 class="fw-bold mb-4"><i class="fa-solid fa-chart-line me-2 text-indigo"></i>NLP Pipeline Metrics</h5>
+            
+            {% if charts_exist %}
+                <div class="mb-4">
+                    <h6 class="text-center text-muted fw-semibold mb-2">Score Distribution Histograms</h6>
+                    <div class="chart-container mb-3 border">
+                        <img src="{{ url_for('static', filename='charts/score_distribution.png') }}?t={{ cache_buster }}" class="chart-img" alt="Score Distribution">
+                    </div>
+                </div>
+                
+                <div>
+                    <h6 class="text-center text-muted fw-semibold mb-2">Recommendation Allocations</h6>
+                    <div class="chart-container border">
+                        <img src="{{ url_for('static', filename='charts/recommendation_distribution.png') }}?t={{ cache_buster }}" class="chart-img" alt="Status Distribution">
+                    </div>
+                </div>
+            {% else %}
+                <div class="text-center py-5 d-flex flex-column align-items-center justify-content-center h-75">
+                    <i class="fa-solid fa-chart-bar fa-3x text-muted mb-3"></i>
+                    <h6 class="fw-bold text-secondary">No Analytics Available</h6>
+                    <p class="text-muted text-center px-3 small">Charts will generate automatically after you match candidate resumes against a Job Description.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

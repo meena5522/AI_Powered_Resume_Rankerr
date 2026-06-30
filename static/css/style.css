@@ -1,0 +1,241 @@
+/* Custom Theme and Styling for AI Resume Ranker */
+
+:root {
+    --primary-bg: #f8f9fa;
+    --card-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --sidebar-bg: #1e293b;
+    --sidebar-hover: #334155;
+    --primary-gradient: linear-gradient(135deg, #6366f1, #4f46e5);
+    --success-gradient: linear-gradient(135deg, #10b981, #059669);
+    --text-dark: #0f172a;
+    --text-muted: #64748b;
+    --shadow-sm: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+    --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.08);
+    --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+body {
+    background-color: var(--primary-bg);
+    color: var(--text-dark);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Glassmorphism Cards */
+.glass-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Sidebar Styling */
+.sidebar {
+    background-color: var(--sidebar-bg);
+    color: #f1f5f9;
+    min-height: 100vh;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar .nav-link {
+    color: #cbd5e1;
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin: 4px 0;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar .nav-link:hover, 
+.sidebar .nav-link.active {
+    background-color: var(--sidebar-hover);
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.sidebar .nav-link.active {
+    border-left: 4px solid #6366f1;
+}
+
+/* Main Dashboard Cards */
+.dashboard-stat-card {
+    border: none;
+    border-radius: 16px;
+    color: white;
+    overflow: hidden;
+    position: relative;
+}
+
+.dashboard-stat-card .card-body {
+    padding: 24px;
+    z-index: 2;
+    position: relative;
+}
+
+.stat-icon {
+    font-size: 3rem;
+    position: absolute;
+    right: 10px;
+    bottom: -10px;
+    opacity: 0.15;
+    transform: rotate(-15deg);
+}
+
+/* Table Enhancements */
+.custom-table {
+    border-collapse: separate;
+    border-spacing: 0 8px;
+}
+
+.custom-table tr {
+    transition: transform 0.2s ease;
+}
+
+.custom-table tbody tr:hover {
+    transform: scale(1.005);
+    background-color: rgba(99, 102, 241, 0.05) !important;
+}
+
+.custom-table td {
+    background-color: white;
+    border-top: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 16px;
+    vertical-align: middle;
+}
+
+.custom-table td:first-child {
+    border-left: 1px solid #e2e8f0;
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+}
+
+.custom-table td:last-child {
+    border-right: 1px solid #e2e8f0;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+/* Badges for Recommendation */
+.badge-status {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.status-highly-recommended {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.status-recommended {
+    background-color: #e0f2fe;
+    color: #0369a1;
+}
+
+.status-consider {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-not-recommended {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* Skills Badges */
+.skill-badge {
+    background-color: #e2e8f0;
+    color: #475569;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-right: 4px;
+    margin-bottom: 4px;
+    display: inline-block;
+}
+
+.skill-badge-match {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.skill-badge-missing {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* Animated Buttons */
+.btn-primary-gradient {
+    background: var(--primary-gradient);
+    border: none;
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-primary-gradient:hover {
+    background: linear-gradient(135deg, #4f46e5, #4338ca);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
+    color: white;
+}
+
+/* Spinner Overlay for Loading States */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-spinner {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Progress bar score override */
+.progress {
+    height: 8px;
+    border-radius: 4px;
+    background-color: #e2e8f0;
+}
+
+/* Chart Container */
+.chart-container {
+    padding: 15px;
+    border-radius: 12px;
+    background: white;
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+}
+
+.chart-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}

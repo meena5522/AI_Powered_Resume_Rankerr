@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI Resume Ranker{% endblock %}</title>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            {% if session.get('user_id') %}
+            <!-- Sidebar for authenticated users -->
+            <nav class="col-md-3 col-lg-2 sidebar d-flex flex-column p-3 position-sticky top-0" style="height: 100vh; overflow-y: auto;">
+                <a href="{{ url_for('dashboard') }}" class="d-flex align-items-center mb-3 mb-md-5 me-md-auto text-white text-decoration-none">
+                    <i class="fa-solid fa-graduation-cap fa-2x me-2 text-indigo"></i>
+                    <span class="fs-5 fw-bold">Resume Ranker</span>
+                </a>
+                <hr style="border-color: rgba(255,255,255,0.1)">
+                <ul class="nav nav-pills flex-column mb-auto">
+                    <li class="nav-item">
+                        <a href="{{ url_for('dashboard') }}" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">
+                            <i class="fa-solid fa-chart-pie"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('job_descriptions') }}" class="nav-link {% if active_page == 'job_descriptions' %}active{% endif %}">
+                            <i class="fa-solid fa-file-contract"></i>
+                            Job Descriptions
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('resumes') }}" class="nav-link {% if active_page == 'resumes' %}active{% endif %}">
+                            <i class="fa-solid fa-file-pdf"></i>
+                            Resumes
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('rankings') }}" class="nav-link {% if active_page == 'rankings' %}active{% endif %}">
+                            <i class="fa-solid fa-ranking-star"></i>
+                            Similarity Rankings
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('reports') }}" class="nav-link {% if active_page == 'reports' %}active{% endif %}">
+                            <i class="fa-solid fa-file-csv"></i>
+                            Report History
+                        </a>
+                    </li>
+                </ul>
+                <hr style="border-color: rgba(255,255,255,0.1)">
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white fw-bold me-2" style="width: 32px; height: 32px;">
+                            {{ session.get('username')[0].upper() if session.get('username') else 'U' }}
+                        </div>
+                        <strong>{{ session.get('username') }}</strong>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser">
+                        <li><a class="dropdown-menu-item dropdown-item" href="{{ url_for('profile') }}"><i class="fa-solid fa-user-gear me-2"></i> Settings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-menu-item dropdown-item" href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket me-2"></i> Sign out</a></li>
+                    </ul>
+                </div>
+            </nav>
+            {% endif %}
+
+            <!-- Main Content Area -->
+            <main class="{% if session.get('user_id') %}col-md-9 ms-sm-auto col-lg-10{% else %}col-12{% endif %} px-md-4 py-4" style="min-height: 100vh;">
+                {% if session.get('user_id') %}
+                <!-- Top Navbar -->
+                <header class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-1 pb-3 mb-4 border-bottom">
+                    <h4 class="fw-semibold text-secondary">HR Administration Panel</h4>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <span class="badge bg-secondary py-2 px-3"><i class="fa-solid fa-clock me-1"></i> System Active</span>
+                    </div>
+                </header>
+                {% endif %}
+
+                <!-- Flash Messages -->
+                <div class="container-fluid p-0">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show shadow-sm" role="alert" style="border-radius: 12px;">
+                                    <i class="fa-solid {% if category == 'error' %}fa-circle-exclamation{% else %}fa-circle-check{% endif %} me-2"></i>
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                </div>
+
+                <!-- Page-specific content block -->
+                <div class="container-fluid p-0">
+                    {% block content %}{% endblock %}
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

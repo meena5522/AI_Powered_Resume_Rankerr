@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Resume Management - AI Resume Ranker{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <h2 class="fw-bold"><i class="fa-solid fa-file-pdf me-2 text-primary"></i>Resume Management</h2>
+        <p class="text-muted">Upload single or multiple candidate resumes in PDF format to build the evaluation pool.</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Resume Upload Panel -->
+    <div class="col-md-5 mb-4">
+        <div class="glass-card p-4">
+            <h5 class="fw-bold mb-4"><i class="fa-solid fa-cloud-arrow-up me-2 text-indigo"></i>Upload Candidates</h5>
+            
+            <form action="{{ url_for('resumes') }}" method="POST" enctype="multipart/form-data" class="show-loader-on-submit">
+                <div class="mb-4">
+                    <label for="resumes" class="form-label fw-semibold">Select PDF Resumes</label>
+                    <div class="border border-2 border-dashed rounded-3 p-4 text-center bg-light" style="border-style: dashed !important; border-color: #6366f1 !important;">
+                        <i class="fa-solid fa-file-invoice fa-3x text-primary mb-3"></i>
+                        <input type="file" class="form-control" id="resumes" name="resumes" accept=".pdf" multiple required>
+                        <div class="form-text text-muted mt-2">You can select and upload multiple PDF resumes at once. Max 16MB file limit.</div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary-gradient w-100 py-2 rounded-3"><i class="fa-solid fa-upload me-2"></i>Extract & Parse Resumes</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Resume Table List -->
+    <div class="col-md-7 mb-4">
+        <div class="glass-card p-4 h-100">
+            <h5 class="fw-bold mb-4"><i class="fa-solid fa-list me-2 text-indigo"></i>Uploaded Candidate Resumes</h5>
+            
+            {% if resumes %}
+            <div class="table-responsive">
+                <table class="table align-middle table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Candidate Name</th>
+                            <th>Filename</th>
+                            <th>Date Uploaded</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for resume in resumes %}
+                        <tr>
+                            <td><strong class="text-indigo">{{ resume.candidate_name }}</strong></td>
+                            <td class="text-muted small"><i class="fa-regular fa-file-pdf text-danger me-1"></i>{{ resume.filename }}</td>
+                            <td class="small">{{ resume.created_at }}</td>
+                            <td class="text-end">
+                                <form action="{{ url_for('delete_resume', resume_id=resume.id) }}" method="POST" class="d-inline" onsubmit="return confirmDelete(event, '{{ resume.candidate_name }}')">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm border-0"><i class="fa-regular fa-trash-can"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5 d-flex flex-column align-items-center justify-content-center h-75">
+                <i class="fa-solid fa-box-open fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No resumes uploaded yet. Upload resumes on the left to add candidates to your pool!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

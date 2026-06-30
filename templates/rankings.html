@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+
+{% block title %}Similarity Rankings - AI Resume Ranker{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <h2 class="fw-bold"><i class="fa-solid fa-ranking-star me-2 text-primary"></i>Resume Matching Rankings</h2>
+        <p class="text-muted">Select a Job Description and calculate candidate similarity scores using TF-IDF and Cosine Similarity.</p>
+    </div>
+</div>
+
+<!-- Config and Analysis Panel -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="glass-card p-4">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-gears me-2 text-indigo"></i>Evaluation Panel</h5>
+            <form action="{{ url_for('rankings') }}" method="POST" class="show-loader-on-submit row g-3 align-items-center">
+                <div class="col-md-6">
+                    <label for="jd_id" class="visually-hidden">Select Job Description</label>
+                    <select class="form-select form-select-lg" id="jd_id" name="jd_id" required>
+                        <option value="" disabled {% if not selected_jd %}selected{% endif %}>Select Job Description...</option>
+                        {% for jd in jds %}
+                            <option value="{{ jd.id }}" {% if selected_jd and selected_jd.id == jd.id %}selected{% endif %}>{{ jd.title }} (created: {{ jd.created_at[:10] }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <button type="submit" class="btn btn-primary-gradient btn-lg w-100"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Compute Similarities & Rank</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% if selected_jd %}
+<!-- Results Panel -->
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="glass-card p-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+                <div>
+                    <h5 class="fw-bold mb-1">Rankings for: <span class="text-indigo">{{ selected_jd.title }}</span></h5>
+                    <p class="text-muted small mb-0">Analyzed {{ rankings|length }} candidate resumes.</p>
+                </div>
+                
+                <!-- Report Exports -->
+                {% if rankings %}
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('download_report', jd_id=selected_jd.id, format='pdf') }}" class="btn btn-outline-danger rounded-3"><i class="fa-regular fa-file-pdf me-2"></i>Export PDF</a>
+                    <a href="{{ url_for('download_report', jd_id=selected_jd.id, format='csv') }}" class="btn btn-outline-success rounded-3"><i class="fa-solid fa-file-csv me-2"></i>Export CSV</a>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if rankings %}
+            <!-- Search & Filter Controls -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                        <input type="text" class="form-control border-start-0" id="searchCandidate" placeholder="Search candidate name...">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" id="filterStatus">
+                        <option value="">All Recommendation Statuses</option>
+                        <option value="Highly Recommended">Highly Recommended</option>
+                        <option value="Recommended">Recommended</option>
+                        <option value="Consider">Consider</option>
+                        <option value="Not Recommended">Not Recommended</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Rankings Table -->
+            <div class="table-responsive">
+                <table class="table align-middle filterable-table custom-table mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Rank</th>
+                            <th>Candidate</th>
+                            <th>Score</th>
+                            <th>Status</th>
+                            <th>Matching / Missing Skills</th>
+                            <th class="text-end pe-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rank in rankings %}
+                        <tr>
+                            <td class="ps-3"><span class="badge bg-secondary rounded-circle py-2 px-2.5 fw-bold">{{ loop.index }}</span></td>
+                            <td>
+                                <strong class="text-indigo candidate-name">{{ rank.candidate_name }}</strong>
+                                <div class="small text-muted"><i class="fa-regular fa-file-pdf text-danger me-1"></i>{{ rank.filename }}</div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center" style="min-width: 120px;">
+                                    <div class="progress w-100 me-2">
+                                        <div class="progress-bar {% if rank.score >= 75 %}bg-success{% elif rank.score >= 50 %}bg-info{% elif rank.score >= 25 %}bg-warning{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ rank.score }}%"></div>
+                                    </div>
+                                    <span class="small fw-bold">{{ "%.1f"|format(rank.score) }}%</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge badge-status 
+                                    {% if rank.recommendation == 'Highly Recommended' %}status-highly-recommended
+                                    {% elif rank.recommendation == 'Recommended' %}status-recommended
+                                    {% elif rank.recommendation == 'Consider' %}status-consider
+                                    {% else %}status-not-recommended{% endif %}">
+                                    {{ rank.recommendation }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="mb-1">
+                                    <span class="text-success small fw-semibold">Matches:</span>
+                                    {% if rank.matching_skills %}
+                                        {% for skill in rank.matching_skills.split(',') %}
+                                            <span class="badge bg-success-subtle text-success small py-1" style="font-size: 0.7rem;">{{ skill }}</span>
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="text-muted small">None</span>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <span class="text-danger small fw-semibold">Missing:</span>
+                                    {% if rank.missing_skills %}
+                                        {% for skill in rank.missing_skills.split(',') %}
+                                            <span class="badge bg-danger-subtle text-danger small py-1" style="font-size: 0.7rem;">{{ skill }}</span>
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="text-muted small">None</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="text-end pe-3">
+                                <button type="button" class="btn btn-outline-primary btn-sm rounded-3" data-bs-toggle="modal" data-bs-target="#modal-{{ rank.ranking_id }}">
+                                    <i class="fa-solid fa-chart-simple me-1"></i> NLP Details
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- NLP Details Modal -->
+                        <div class="modal fade" id="modal-{{ rank.ranking_id }}" tabindex="-1" aria-labelledby="modalLabel-{{ rank.ranking_id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+                                    <div class="modal-header bg-light border-0 py-3" style="border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                                        <h5 class="modal-title fw-bold" id="modalLabel-{{ rank.ranking_id }}">
+                                            <i class="fa-solid fa-brain text-primary me-2"></i>NLP Evaluation: {{ rank.candidate_name }}
+                                        </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body p-4">
+                                        <!-- Score Indicator -->
+                                        <div class="d-flex align-items-center mb-4 bg-light p-3 rounded-3 border">
+                                            <div class="me-4 text-center">
+                                                <h1 class="fw-bold mb-0 text-primary">{{ "%.1f"|format(rank.score) }}%</h1>
+                                                <small class="text-muted fw-semibold">Cosine Score</small>
+                                            </div>
+                                            <div>
+                                                <h5 class="fw-bold mb-1">Status: 
+                                                    <span class="badge badge-status 
+                                                        {% if rank.recommendation == 'Highly Recommended' %}status-highly-recommended
+                                                        {% elif rank.recommendation == 'Recommended' %}status-recommended
+                                                        {% elif rank.recommendation == 'Consider' %}status-consider
+                                                        {% else %}status-not-recommended{% endif %}">
+                                                        {{ rank.recommendation }}
+                                                    </span>
+                                                </h5>
+                                                <p class="text-muted mb-0 small">TF-IDF Vector Comparison matches language patterns and skills frequencies against JD requirements.</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- Extractive Summary -->
+                                        <div class="mb-4">
+                                            <h6 class="fw-bold mb-2 text-indigo"><i class="fa-regular fa-file-lines me-2"></i>Extractive Resume Summary (NLP)</h6>
+                                            <div class="p-3 bg-light rounded-3 border" style="font-style: italic; font-size: 0.95rem; line-height: 1.6;">
+                                                "{{ rank.summary }}"
+                                            </div>
+                                        </div>
+
+                                        <!-- Skills breakdown details -->
+                                        <div class="row mb-4">
+                                            <div class="col-md-6 mb-3 mb-md-0">
+                                                <div class="p-3 border rounded-3 h-100">
+                                                    <h6 class="fw-bold mb-3 text-success"><i class="fa-regular fa-circle-check me-2"></i>Matching Target Skills ({{ rank.matching_skills.split(',')|length if rank.matching_skills else 0 }})</h6>
+                                                    {% if rank.matching_skills %}
+                                                        <div class="d-flex flex-wrap gap-1">
+                                                            {% for skill in rank.matching_skills.split(',') %}
+                                                                <span class="skill-badge skill-badge-match">{{ skill }}</span>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% else %}
+                                                        <p class="text-muted small">No target skills matched.</p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="p-3 border rounded-3 h-100">
+                                                    <h6 class="fw-bold mb-3 text-danger"><i class="fa-regular fa-circle-xmark me-2"></i>Missing Target Skills ({{ rank.missing_skills.split(',')|length if rank.missing_skills else 0 }})</h6>
+                                                    {% if rank.missing_skills %}
+                                                        <div class="d-flex flex-wrap gap-1">
+                                                            {% for skill in rank.missing_skills.split(',') %}
+                                                                <span class="skill-badge skill-badge-missing">{{ skill }}</span>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% else %}
+                                                        <p class="text-muted small">Perfect overlap! No missing skills.</p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Raw text details collapsible -->
+                                        <div>
+                                            <button class="btn btn-sm btn-outline-secondary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#textCollapse-{{ rank.ranking_id }}" aria-expanded="false" aria-controls="textCollapse-{{ rank.ranking_id }}">
+                                                <i class="fa-solid fa-angles-down me-1"></i> View Extracted Raw Text
+                                            </button>
+                                            <div class="collapse mt-2" id="textCollapse-{{ rank.ranking_id }}">
+                                                <div class="card card-body bg-light border p-3 small overflow-auto" style="max-height: 250px; white-space: pre-wrap; font-family: monospace;">
+                                                    {{ rank.extracted_text }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer border-0 bg-light py-2" style="border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
+                                        <button type="button" class="btn btn-secondary btn-sm rounded-3" data-bs-toggle="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fa-solid fa-circle-exclamation fa-3x text-muted mb-3"></i>
+                <h6 class="fw-bold">No Rankings Extracted</h6>
+                <p class="text-muted">You have no candidate resumes uploaded to match, or none computed. Upload resumes under Resumes first.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

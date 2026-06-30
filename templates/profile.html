@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile Settings - AI Resume Ranker{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <h2 class="fw-bold"><i class="fa-solid fa-user-gear me-2 text-primary"></i>Profile Settings</h2>
+        <p class="text-muted">Manage your credentials and security settings.</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Edit Profile Card -->
+    <div class="col-md-6 mb-4">
+        <div class="glass-card p-4 h-100">
+            <h5 class="card-title fw-bold mb-4"><i class="fa-regular fa-id-card me-2 text-indigo"></i>Recruiter Information</h5>
+            
+            <form action="{{ url_for('profile') }}" method="POST">
+                <input type="hidden" name="form_type" value="profile">
+                
+                <div class="mb-3">
+                    <label for="username" class="form-label fw-semibold">Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="fa-solid fa-user text-muted"></i></span>
+                        <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="email" class="form-label fw-semibold">Email Address</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="fa-solid fa-envelope text-muted"></i></span>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary-gradient px-4 py-2 rounded-3">Update Profile</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Change Password Card -->
+    <div class="col-md-6 mb-4">
+        <div class="glass-card p-4 h-100">
+            <h5 class="card-title fw-bold mb-4"><i class="fa-solid fa-shield-halved me-2 text-indigo"></i>Security Update</h5>
+            
+            <form action="{{ url_for('profile') }}" method="POST">
+                <input type="hidden" name="form_type" value="password">
+                
+                <div class="mb-3">
+                    <label for="current_password" class="form-label fw-semibold">Current Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="fa-solid fa-lock text-muted"></i></span>
+                        <input type="password" class="form-control" id="current_password" name="current_password" placeholder="Enter current password" required>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="new_password" class="form-label fw-semibold">New Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="fa-solid fa-key text-muted"></i></span>
+                        <input type="password" class="form-control" id="new_password" name="new_password" placeholder="Min. 8 characters" required minlength="8">
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="confirm_password" class="form-label fw-semibold">Confirm New Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="fa-solid fa-key text-muted"></i></span>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Re-enter new password" required minlength="8">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary-gradient px-4 py-2 rounded-3">Change Password</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
